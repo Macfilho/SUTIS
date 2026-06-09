@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Processos de Aquisição / Contratação - Dashboard SUTIS/SES-GO</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<style>
+:root {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --card-2: #334155;
+  --text: #e5e7eb;
+  --muted: #94a3b8;
+  --border: #475569;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --green: #22c55e;
+  --yellow: #f59e0b;
+  --red: #ef4444;
+  --blue: #3b82f6;
+}
+
+body.light {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --card-2: #e2e8f0;
+  --text: #0f172a;
+  --muted: #475569;
+  --border: #cbd5e1;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', 'Inter', Arial, sans-serif;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  transition: background .2s ease, color .2s ease;
+}
+
+.container {
+  max-width: 1450px;
+  margin: auto;
+  padding: 22px;
+}
+
+/* HEADER */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.logo {
+  height: 60px;
+  object-fit: contain;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+h2 {
+  font-weight: 600;
+  margin: 8px 0 22px;
+  font-size: 24px;
+  line-height: 1.3;
+}
+
+/* BUTTONS */
+button {
+  padding: 9px 14px;
+  border-radius: 9px;
+  border: none;
+  background: var(--primary);
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background .2s ease, transform .1s ease;
+}
+
+button:hover {
+  background: var(--primary-hover);
+}
+
+button:active {
+  transform: scale(.98);
+}
+
+/* KPI */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.card {
+  background: var(--card);
+  padding: 18px 15px;
+  border-radius: 14px;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,.04);
+  box-shadow: 0 8px 22px rgba(0,0,0,.12);
+}
+
+.card-title {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+
+.valor {
+  font-size: 26px;
+  font-weight: 700;
+  margin-top: 8px;
+  color: var(--green);
+}
+
+/* FILTER */
+.controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.controls input,
+.controls select {
+  padding: 11px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  outline: none;
+  font-size: 14px;
+}
+
+.controls input:focus,
+.controls select:focus {
+  border-color: var(--primary);
+}
+
+/* Campo de pesquisa maior */
+.search-input {
+  flex: 1;
+  min-width: 420px;
+  max-width: 1000px;
+}
+
+.status-select {
+  min-width: 230px;
+}
+
+.info-registros {
+  color: var(--muted);
+  font-size: 13px;
+  margin-left: auto;
+}
+
+/* CHARTS */
+.charts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 22px;
+}
+
+.chart-box {
+  background: var(--card);
+  padding: 15px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.04);
+  min-height: 310px;
+  box-shadow: 0 8px 22px rgba(0,0,0,.12);
+}
+
+.chart-box h4 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.chart-box canvas {
+  max-height: 250px;
+}
+
+/* TABLE */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 14px;
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,.04);
+  box-shadow: 0 8px 22px rgba(0,0,0,.12);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+th {
+  background: var(--card-2);
+  color: var(--text);
+  text-align: left;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+th,
+td {
+  padding: 11px 12px;
+  font-size: 12.5px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+tr:hover td {
+  background: rgba(37, 99, 235, .08);
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.badge.concluido {
+  background: rgba(34,197,94,.16);
+  color: #22c55e;
+}
+
+.badge.cancelado {
+  background: rgba(239,68,68,.16);
+  color: #ef4444;
+}
+
+.badge.andamento {
+  background: rgba(245,158,11,.16);
+  color: #f59e0b;
+}
+
+.badge.outro {
+  background: rgba(59,130,246,.16);
+  color: #3b82f6;
+}
+
+/* STATUS */
+.loading,
+.erro,
+.vazio {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 14px;
+  border-radius: 12px;
+  margin-bottom: 18px;
+  color: var(--muted);
+}
+
+.erro {
+  color: #fecaca;
+  background: rgba(239, 68, 68, .12);
+}
+
+/* RESPONSIVO */
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .charts {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-box canvas {
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 720px) {
+  .container {
+    padding: 14px;
+  }
+
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-input,
+  .status-select {
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  .info-registros {
+    margin-left: 0;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <header>
+    <img src="logo.png" class="logo" alt="Logo">
+    <div class="header-actions">
+      <button onclick="limpar()">Limpar</button>
+      <button onclick="exportar()">Exportar</button>
+      <button onclick="toggleTheme()">🌙 / ☀️</button>
+    </div>
+  </header>
+
+  <h2>Processos de Aquisição / Contratação - Dashboard SUTIS/SES-GO</h2>
+
+  <div id="mensagem" class="loading">Carregando dados...</div>
+
+  <!-- KPI -->
+  <div class="grid">
+    <div class="card">
+      <div class="card-title">Total</div>
+      <div id="total" class="valor">0</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Concluídos</div>
+      <div id="concluido" class="valor">0</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Em Andamento</div>
+      <div id="andamento" class="valor">0</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Cancelados</div>
+      <div id="cancelado" class="valor">0</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Média Dias</div>
+      <div id="media" class="valor">0 dias</div>
+    </div>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="controls">
+    <input 
+      type="text"
+      id="busca" 
+      class="search-input"
+      placeholder="Buscar por descrição, processo ou departamento..."
+    >
+
+    <select id="statusSelect" class="status-select">
+      <option value="">Todos os Status</option>
+    </select>
+
+    <div id="infoRegistros" class="info-registros">0 registros encontrados</div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="charts">
+    <div class="chart-box">
+      <h4>Status dos Processos</h4>
+      <canvas id="chartStatus"></canvas>
+    </div>
+
+    <div class="chart-box">
+      <h4>Processos por Departamento</h4>
+      <canvas id="chartDept"></canvas>
+    </div>
+
+    <div class="chart-box">
+      <h4>Tempo sem Movimentação</h4>
+      <canvas id="chartAging"></canvas>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Número do Processo SEI</th>
+          <th>Departamento Responsável</th>
+          <th>Status</th>
+          <th>Dias Parado</th>
+          <th>Descrição</th>
+        </tr>
+      </thead>
+      <tbody id="tb"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+function seguro(v, padrao = "Não informado") {
+  if (v === undefined || v === null) return padrao;
+
+  const texto = String(v).trim();
+
+  return texto !== "" ? texto : padrao;
+}
+
+function normalizar(v) {
+  return seguro(v, "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+let dados = [];
+let filtrado = [];
+let c1 = null;
+let c2 = null;
+let c3 = null;
+
+const el = {
+  mensagem: document.getElementById("mensagem"),
+  busca: document.getElementById("busca"),
+  statusSelect: document.getElementById("statusSelect"),
+  infoRegistros: document.getElementById("infoRegistros"),
+  tb: document.getElementById("tb"),
+  total: document.getElementById("total"),
+  concluido: document.getElementById("concluido"),
+  andamento: document.getElementById("andamento"),
+  cancelado: document.getElementById("cancelado"),
+  media: document.getElementById("media")
+};
+
+async function carregar() {
+  try {
+    const res = await fetch("datagrid.xlsx");
+
+    if (!res.ok) {
+      throw new Error("Arquivo datagrid.xlsx não encontrado.");
+    }
+
+    const buffer = await res.arrayBuffer();
+
+    const wb = XLSX.read(buffer, { type: "array" });
+    const primeiraAba = wb.SheetNames[0];
+
+    let json = XLSX.utils.sheet_to_json(wb.Sheets[primeiraAba], {
+      defval: ""
+    });
+
+    json = removerLinhasVazias(json);
+
+    dados = json.map(x => ({
+      proc: seguro(x["Processo SEI"]),
+      dep: seguro(x["Departamento"]),
+      status: seguro(x["Status"]),
+      dias: converterNumero(x["Dias Parado"]),
+      desc: seguro(x["Descrição Objeto"], "Sem descrição")
+    }));
+
+    filtrado = [...dados];
+
+    montarDropdown();
+    update();
+
+    el.mensagem.style.display = "none";
+
+  } catch (erro) {
+    console.error(erro);
+    el.mensagem.className = "erro";
+    el.mensagem.innerText = "Erro ao carregar os dados. Verifique se o arquivo datagrid.xlsx está na mesma pasta do dashboard.";
+  }
+}
+
+function removerLinhasVazias(lista) {
+  return lista.filter(item => {
+    return Object.values(item).some(valor => String(valor).trim() !== "");
+  });
+}
+
+function converterNumero(v) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function montarDropdown() {
+  el.statusSelect.innerHTML = '<option value="">Todos os Status</option>';
+
+  const statusUnicos = [...new Set(dados.map(x => x.status))]
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b, "pt-BR"));
+
+  statusUnicos.forEach(status => {
+    const op = document.createElement("option");
+    op.value = status;
+    op.textContent = status;
+    el.statusSelect.appendChild(op);
+  });
+}
+
+function aplicar() {
+  const textoBusca = normalizar(el.busca.value);
+  const statusSelecionado = el.statusSelect.value;
+
+  filtrado = dados.filter(x => {
+    const buscaGeral = [
+      x.proc,
+      x.dep,
+      x.status,
+      x.desc
+    ].map(normalizar).join(" ");
+
+    const passaBusca = !textoBusca || buscaGeral.includes(textoBusca);
+    const passaStatus = !statusSelecionado || x.status === statusSelecionado;
+
+    return passaBusca && passaStatus;
+  });
+
+  update();
+}
+
+function kpi(lista) {
+  const total = lista.length;
+
+  const concluidos = lista.filter(x => {
+    const s = normalizar(x.status);
+    return s.includes("concluido");
+  }).length;
+
+  const cancelados = lista.filter(x => {
+    const s = normalizar(x.status);
+    return s.includes("cancelado");
+  }).length;
+
+  const andamento = lista.filter(x => {
+    const s = normalizar(x.status);
+    return s.includes("andamento");
+  }).length;
+
+  const media = total
+    ? lista.reduce((acc, item) => acc + item.dias, 0) / total
+    : 0;
+
+  el.total.innerText = total;
+  el.concluido.innerText = concluidos;
+  el.cancelado.innerText = cancelados;
+  el.andamento.innerText = andamento;
+  el.media.innerText = `${Math.round(media)} dias`;
+
+  el.infoRegistros.innerText = `${total} registro${total === 1 ? "" : "s"} encontrado${total === 1 ? "" : "s"}`;
+}
+
+function classeBadge(status) {
+  const s = normalizar(status);
+
+  if (s.includes("concluido")) return "concluido";
+  if (s.includes("cancelado")) return "cancelado";
+  if (s.includes("andamento")) return "andamento";
+
+  return "outro";
+}
+
+function tabela(lista) {
+  el.tb.innerHTML = "";
+
+  if (!lista.length) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+
+    td.colSpan = 5;
+    td.textContent = "Nenhum registro encontrado.";
+    td.style.textAlign = "center";
+    td.style.padding = "18px";
+    td.style.color = "var(--muted)";
+
+    tr.appendChild(td);
+    el.tb.appendChild(tr);
+    return;
+  }
+
+  const fragmento = document.createDocumentFragment();
+
+  lista.forEach(x => {
+    const tr = document.createElement("tr");
+
+    const tdProc = document.createElement("td");
+    tdProc.textContent = x.proc;
+
+    const tdDep = document.createElement("td");
+    tdDep.textContent = x.dep;
+
+    const tdStatus = document.createElement("td");
+    const badge = document.createElement("span");
+    badge.className = `badge ${classeBadge(x.status)}`;
+    badge.textContent = x.status;
+    tdStatus.appendChild(badge);
+
+    const tdDias = document.createElement("td");
+    tdDias.textContent = x.dias;
+
+    const tdDesc = document.createElement("td");
+    tdDesc.textContent = x.desc;
+
+    tr.appendChild(tdProc);
+    tr.appendChild(tdDep);
+    tr.appendChild(tdStatus);
+    tr.appendChild(tdDias);
+    tr.appendChild(tdDesc);
+
+    fragmento.appendChild(tr);
+  });
+
+  el.tb.appendChild(fragmento);
+}
+
+function contarPorCampo(lista, campo) {
+  return lista.reduce((acc, item) => {
+    const chave = item[campo] || "Não informado";
+    acc[chave] = (acc[chave] || 0) + 1;
+    return acc;
+  }, {});
+}
+
+function destruirGraficos() {
+  if (c1) c1.destroy();
+  if (c2) c2.destroy();
+  if (c3) c3.destroy();
+
+  c1 = null;
+  c2 = null;
+  c3 = null;
+}
+
+function charts(lista) {
+  destruirGraficos();
+
+  const corTexto = getComputedStyle(document.body).getPropertyValue("--text").trim();
+  const corGrid = getComputedStyle(document.body).getPropertyValue("--border").trim();
+
+  const statusMap = contarPorCampo(lista, "status");
+  const statusLabels = Object.keys(statusMap);
+  const statusValores = Object.values(statusMap);
+
+  c1 = new Chart(document.getElementById("chartStatus"), {
+    type: "bar",
+    data: {
+      labels: statusLabels,
+      datasets: [{
+        label: "Processos",
+        data: statusValores,
+        backgroundColor: gerarCores(statusLabels.length)
+      }]
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: corTexto, precision: 0 },
+          grid: { color: corGrid }
+        },
+        y: {
+          ticks: { color: corTexto },
+          grid: { display: false }
+        }
+      },
+      onClick: function(event, elements) {
+        if (!elements.length) return;
+
+        const index = elements[0].index;
+        const status = statusLabels[index];
+
+        el.statusSelect.value = status;
+        aplicar();
+      }
+    }
+  });
+
+  const depMap = contarPorCampo(lista, "dep");
+  const depOrdenado = Object.entries(depMap)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 12);
+
+  c2 = new Chart(document.getElementById("chartDept"), {
+    type: "bar",
+    data: {
+      labels: depOrdenado.map(x => x[0]),
+      datasets: [{
+        label: "Processos",
+        data: depOrdenado.map(x => x[1]),
+        backgroundColor: "#3b82f6"
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            title: itens => itens[0].label
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: corTexto,
+            maxRotation: 60,
+            minRotation: 30
+          },
+          grid: { display: false }
+        },
+        y: {
+          ticks: { color: corTexto, precision: 0 },
+          grid: { color: corGrid }
+        }
+      }
+    }
+  });
+
+  const aging = [
+    lista.filter(x => x.dias < 30).length,
+    lista.filter(x => x.dias >= 30 && x.dias < 90).length,
+    lista.filter(x => x.dias >= 90 && x.dias < 180).length,
+    lista.filter(x => x.dias >= 180).length
+  ];
+
+  c3 = new Chart(document.getElementById("chartAging"), {
+    type: "bar",
+    data: {
+      labels: ["0-30 dias", "30-90 dias", "90-180 dias", "180+ dias"],
+      datasets: [{
+        label: "Processos",
+        data: aging,
+        backgroundColor: ["#22c55e", "#f59e0b", "#ef4444", "#7c3aed"]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: corTexto },
+          grid: { display: false }
+        },
+        y: {
+          ticks: { color: corTexto, precision: 0 },
+          grid: { color: corGrid }
+        }
+      }
+    }
+  });
+}
+
+function gerarCores(qtd) {
+  const cores = [
+    "#22c55e",
+    "#f59e0b",
+    "#ef4444",
+    "#3b82f6",
+    "#8b5cf6",
+    "#06b6d4",
+    "#ec4899",
+    "#84cc16",
+    "#f97316",
+    "#14b8a6"
+  ];
+
+  return Array.from({ length: qtd }, (_, i) => cores[i % cores.length]);
+}
+
+function update() {
+  kpi(filtrado);
+  tabela(filtrado);
+  charts(filtrado);
+}
+
+function limpar() {
+  el.busca.value = "";
+  el.statusSelect.value = "";
+  filtrado = [...dados];
+  update();
+}
+
+function exportar() {
+  if (!filtrado.length) {
+    alert("Não há dados para exportar.");
+    return;
+  }
+
+  const dadosExportacao = filtrado.map(x => ({
+    "Número do Processo SEI": x.proc,
+    "Departamento Responsável": x.dep,
+    "Status": x.status,
+    "Dias Parado": x.dias,
+    "Descrição": x.desc
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(dadosExportacao);
+  const wb = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(wb, ws, "dados_filtrados");
+  XLSX.writeFile(wb, "dados_filtrados.xlsx");
+}
+
+function toggleTheme() {
+  document.body.classList.toggle("light");
+
+  /*
+    Recria os gráficos para atualizar cores de texto/grid
+    de acordo com o tema selecionado.
+  */
+  charts(filtrado);
+}
+
+el.busca.addEventListener("input", aplicar);
+el.statusSelect.addEventListener("change", aplicar);
+
+carregar();
+</script>
+
+</body>
+</html>
