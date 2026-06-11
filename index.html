@@ -76,9 +76,24 @@ header {
 
 h2 {
   font-weight: 600;
-  margin: 8px 0 22px;
+  margin: 8px 0 10px;
   font-size: 24px;
   line-height: 1.3;
+}
+
+/* DATA ATUALIZAÇÃO */
+.data-atualizacao {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 22px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
 }
 
 /* BUTTONS */
@@ -215,7 +230,7 @@ button:active {
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 900px;
+  min-width: 1050px;
 }
 
 th {
@@ -351,6 +366,10 @@ tr:hover td {
 
   <h2>Processos de Aquisição / Contratação - Dashboard SUTIS/SES-GO</h2>
 
+  <div id="dataAtualizacao" class="data-atualizacao">
+    Dados atualizados em: verificando...
+  </div>
+
   <div id="mensagem" class="loading">Carregando dados...</div>
 
   <!-- KPI -->
@@ -387,7 +406,7 @@ tr:hover td {
       type="text"
       id="busca" 
       class="search-input"
-      placeholder="Buscar por descrição, processo ou departamento..."
+      placeholder="Buscar por descrição, processo, contrato ou departamento..."
     >
 
     <select id="statusSelect" class="status-select">
@@ -421,6 +440,7 @@ tr:hover td {
       <thead>
         <tr>
           <th>Número do Processo SEI</th>
+          <th>Número do Contrato</th>
           <th>Departamento Responsável</th>
           <th>Status</th>
           <th>Dias Parado</th>
@@ -442,6 +462,24 @@ function seguro(v, padrao = "Não informado") {
   return texto !== "" ? texto : padrao;
 }
 
+/*
+  Função para localizar o número do contrato mesmo que o nome
+  da coluna na planilha esteja escrito de formas diferentes.
+*/
+function obterCampo(obj, nomes, padrao = "") {
+  for (const nome of nomes) {
+    if (
+      obj[nome] !== undefined &&
+      obj[nome] !== null &&
+      String(obj[nome]).trim() !== ""
+    ) {
+      return obj[nome];
+    }
+  }
+
+  return padrao;
+}
+
 function normalizar(v) {
   return seguro(v, "")
     .toLowerCase()
@@ -457,6 +495,7 @@ let c3 = null;
 
 const el = {
   mensagem: document.getElementById("mensagem"),
+  dataAtualizacao: document.getElementById("dataAtualizacao"),
   busca: document.getElementById("busca"),
   statusSelect: document.getElementById("statusSelect"),
   infoRegistros: document.getElementById("infoRegistros"),
@@ -470,15 +509,25 @@ const el = {
 
 async function carregar() {
   try {
-    const res = await fetch("datagrid.xlsx");
+    const res = await fetch("datagrid.xlsx", {
+      cache: "no-store"
+    });
 
     if (!res.ok) {
       throw new Error("Arquivo datagrid.xlsx não encontrado.");
     }
 
+    const dataCabecalho = res.headers.get("Last-Modified");
+
     const buffer = await res.arrayBuffer();
 
-    const wb = XLSX.read(buffer, { type: "array" });
+    const wb = XLSX.read(buffer, {
+      type: "array",
+      cellDates: true
+    });
+
+    atualizarDataPlanilha(wb, dataCabecalho);
+
     const primeiraAba = wb.SheetNames[0];
 
     let json = XLSX.utils.sheet_to_json(wb.Sheets[primeiraAba], {
@@ -487,13 +536,34 @@ async function carregar() {
 
     json = removerLinhasVazias(json);
 
-    dados = json.map(x => ({
-      proc: seguro(x["Processo SEI"]),
-      dep: seguro(x["Departamento"]),
-      status: seguro(x["Status"]),
-      dias: converterNumero(x["Dias Parado"]),
-      desc: seguro(x["Descrição Objeto"], "Sem descrição")
-    }));
+    dados = json.map(x => {
+      const status = seguro(x["Status"]);
+
+      return {
+        proc: seguro(x["Processo SEI"]),
+
+        contrato: seguro(
+          obterCampo(x, [
+            "Número do Contrato",
+            "Numero do Contrato",
+            "Nº Contrato",
+            "N° Contrato",
+            "N Contrato",
+            "Contrato",
+            "Número Contrato",
+            "Numero Contrato",
+            "Contrato SEI",
+            "Nº do Contrato",
+            "N° do Contrato"
+          ], "")
+        ),
+
+        dep: seguro(x["Departamento"]),
+        status: status,
+        dias: converterNumero(x["Dias Parado"]),
+        desc: seguro(x["Descrição Objeto"], "Sem descrição")
+      };
+    });
 
     filtrado = [...dados];
 
@@ -506,6 +576,7 @@ async function carregar() {
     console.error(erro);
     el.mensagem.className = "erro";
     el.mensagem.innerText = "Erro ao carregar os dados. Verifique se o arquivo datagrid.xlsx está na mesma pasta do dashboard.";
+    el.dataAtualizacao.innerText = "Dados atualizados em: não disponível";
   }
 }
 
@@ -518,6 +589,40 @@ function removerLinhasVazias(lista) {
 function converterNumero(v) {
   const n = Number(v);
   return Number.isFinite(n) ? n : 0;
+}
+
+function formatarData(data) {
+  if (!data || isNaN(data.getTime())) {
+    return "não disponível";
+  }
+
+  return data.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+  });
+}
+
+function atualizarDataPlanilha(wb, dataCabecalho) {
+  let dataAtualizacao = null;
+
+  /*
+    1ª tentativa:
+    Data interna salva nas propriedades do arquivo Excel.
+  */
+  if (wb && wb.Props && wb.Props.ModifiedDate) {
+    dataAtualizacao = new Date(wb.Props.ModifiedDate);
+  }
+
+  /*
+    2ª tentativa:
+    Data de modificação informada pelo servidor.
+  */
+  if ((!dataAtualizacao || isNaN(dataAtualizacao.getTime())) && dataCabecalho) {
+    dataAtualizacao = new Date(dataCabecalho);
+  }
+
+  el.dataAtualizacao.innerText = `Dados atualizados em: ${formatarData(dataAtualizacao)}`;
 }
 
 function montarDropdown() {
@@ -542,6 +647,7 @@ function aplicar() {
   filtrado = dados.filter(x => {
     const buscaGeral = [
       x.proc,
+      x.contrato,
       x.dep,
       x.status,
       x.desc
@@ -597,6 +703,19 @@ function classeBadge(status) {
   return "outro";
 }
 
+function deveMostrarContrato(status) {
+  const s = normalizar(status);
+
+  /*
+    Mostra o número do contrato somente quando o status indicar andamento.
+    Exemplos aceitos:
+    - Contratos Em Andamento
+    - Em Andamento
+    - Contrato em andamento
+  */
+  return s.includes("andamento");
+}
+
 function tabela(lista) {
   el.tb.innerHTML = "";
 
@@ -604,7 +723,7 @@ function tabela(lista) {
     const tr = document.createElement("tr");
     const td = document.createElement("td");
 
-    td.colSpan = 5;
+    td.colSpan = 6;
     td.textContent = "Nenhum registro encontrado.";
     td.style.textAlign = "center";
     td.style.padding = "18px";
@@ -623,6 +742,16 @@ function tabela(lista) {
     const tdProc = document.createElement("td");
     tdProc.textContent = x.proc;
 
+    const tdContrato = document.createElement("td");
+
+    if (deveMostrarContrato(x.status)) {
+      tdContrato.textContent = x.contrato && x.contrato !== "Não informado"
+        ? x.contrato
+        : "Não informado";
+    } else {
+      tdContrato.textContent = "-";
+    }
+
     const tdDep = document.createElement("td");
     tdDep.textContent = x.dep;
 
@@ -639,6 +768,7 @@ function tabela(lista) {
     tdDesc.textContent = x.desc;
 
     tr.appendChild(tdProc);
+    tr.appendChild(tdContrato);
     tr.appendChild(tdDep);
     tr.appendChild(tdStatus);
     tr.appendChild(tdDias);
@@ -841,6 +971,9 @@ function exportar() {
 
   const dadosExportacao = filtrado.map(x => ({
     "Número do Processo SEI": x.proc,
+    "Número do Contrato": deveMostrarContrato(x.status)
+      ? x.contrato
+      : "",
     "Departamento Responsável": x.dep,
     "Status": x.status,
     "Dias Parado": x.dias,
