@@ -23,6 +23,8 @@
   --yellow: #f59e0b;
   --red: #ef4444;
   --blue: #3b82f6;
+  --orange: #f97316;
+  --purple: #8b5cf6;
 }
 
 body.light {
@@ -49,7 +51,8 @@ body {
 }
 
 .container {
-  max-width: 1450px;
+  width: 100%;
+  max-width: 1700px;
   margin: auto;
   padding: 22px;
 }
@@ -116,10 +119,18 @@ button:active {
   transform: scale(.98);
 }
 
+.btn-secondary {
+  background: #64748b;
+}
+
+.btn-secondary:hover {
+  background: #475569;
+}
+
 /* KPI */
 .grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 15px;
   margin-bottom: 25px;
 }
@@ -142,7 +153,7 @@ button:active {
 }
 
 .valor {
-  font-size: 26px;
+  font-size: 23px;
   font-weight: 700;
   margin-top: 8px;
   color: var(--green);
@@ -173,11 +184,10 @@ button:active {
   border-color: var(--primary);
 }
 
-/* Campo de pesquisa maior */
 .search-input {
   flex: 1;
-  min-width: 420px;
-  max-width: 1000px;
+  min-width: 480px;
+  max-width: 1100px;
 }
 
 .status-select {
@@ -193,7 +203,7 @@ button:active {
 /* CHARTS */
 .charts {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 15px;
   margin-bottom: 22px;
 }
@@ -217,20 +227,50 @@ button:active {
   max-height: 250px;
 }
 
+/* SEÇÕES */
+.section-title {
+  margin: 24px 0 12px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.section-subtitle {
+  margin: -4px 0 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* FERRAMENTAS DA TABELA */
+.table-tools {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0 0 12px;
+}
+
 /* TABLE */
 .table-wrapper {
   width: 100%;
-  overflow-x: auto;
+  overflow: auto;
   border-radius: 14px;
   background: var(--card);
   border: 1px solid rgba(255,255,255,.04);
   box-shadow: 0 8px 22px rgba(0,0,0,.12);
+  margin-bottom: 24px;
+}
+
+/* Mostra todos os registros da tabela principal na página */
+.table-wrapper.principal {
+  max-height: none;
+  overflow-x: auto;
+  overflow-y: visible;
 }
 
 table {
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
   border-collapse: collapse;
-  min-width: 1050px;
+  table-layout: auto;
 }
 
 th {
@@ -239,21 +279,57 @@ th {
   text-align: left;
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 5;
 }
 
 th,
 td {
-  padding: 11px 12px;
-  font-size: 12.5px;
+  padding: 9px 10px;
+  font-size: 12px;
   border-bottom: 1px solid var(--border);
   vertical-align: top;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+/* Quebra de texto ativada por padrão */
+body.wrap-table td,
+body.wrap-table th {
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: anywhere;
+  min-width: 120px;
+  max-width: 260px;
+}
+
+/* Primeira coluna fixa para facilitar leitura */
+.dados-table th:first-child,
+.dados-table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 4;
+  background: var(--card);
+  box-shadow: 2px 0 0 var(--border);
+}
+
+.dados-table th:first-child {
+  z-index: 7;
+  background: var(--card-2);
+}
+
+tr:nth-child(even) td {
+  background-color: rgba(148, 163, 184, .06);
+}
+
+.dados-table tr:nth-child(even) td:first-child {
+  background: var(--card);
 }
 
 tr:hover td {
-  background: rgba(37, 99, 235, .08);
+  background: rgba(37, 99, 235, .10);
 }
 
+/* BADGES - Novas cores conforme imagem */
 .badge {
   display: inline-block;
   padding: 4px 8px;
@@ -264,48 +340,53 @@ tr:hover td {
 }
 
 .badge.concluido {
-  background: rgba(34,197,94,.16);
+  background: rgba(34,197,94,0.12);
   color: #22c55e;
+  border: 1px solid rgba(34,197,94,0.3);
+}
+
+.badge.contratos-em-andamento {
+  background: rgba(59,130,246,0.12);
+  color: #3b82f6;
+  border: 1px solid rgba(59,130,246,0.3);
 }
 
 .badge.cancelado {
-  background: rgba(239,68,68,.16);
+  background: rgba(239,68,68,0.12);
   color: #ef4444;
+  border: 1px solid rgba(239,68,68,0.3);
 }
 
-.badge.andamento {
-  background: rgba(245,158,11,.16);
-  color: #f59e0b;
+.badge.aquisicao {
+  background: rgba(139,92,246,0.12);
+  color: #8b5cf6;
+  border: 1px solid rgba(139,92,246,0.3);
+}
+
+.badge.em-renovacao {
+  background: rgba(249,115,22,0.12);
+  color: #f97316;
+  border: 1px solid rgba(249,115,22,0.3);
 }
 
 .badge.outro {
-  background: rgba(59,130,246,.16);
-  color: #3b82f6;
-}
-
-/* STATUS */
-.loading,
-.erro,
-.vazio {
-  background: var(--card);
-  border: 1px solid var(--border);
-  padding: 14px;
-  border-radius: 12px;
-  margin-bottom: 18px;
-  color: var(--muted);
-}
-
-.erro {
-  color: #fecaca;
-  background: rgba(239, 68, 68, .12);
+  background: rgba(148,163,184,0.16);
+  color: #94a3b8;
+  border: 1px solid rgba(148,163,184,0.2);
 }
 
 /* RESPONSIVO */
-@media (max-width: 1100px) {
+@media (max-width: 1300px) {
+  .charts {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .grid {
     grid-template-columns: repeat(3, 1fr);
   }
+}
 
+@media (max-width: 900px) {
   .charts {
     grid-template-columns: 1fr;
   }
@@ -351,7 +432,7 @@ tr:hover td {
 </style>
 </head>
 
-<body class="light">
+<body class="light wrap-table">
 
 <div class="container">
 
@@ -398,6 +479,11 @@ tr:hover td {
       <div class="card-title">Média Dias</div>
       <div id="media" class="valor">0 dias</div>
     </div>
+
+    <div class="card">
+      <div class="card-title">Valor Total</div>
+      <div id="valorTotal" class="valor">R$ 0,00</div>
+    </div>
   </div>
 
   <!-- FILTROS -->
@@ -406,7 +492,7 @@ tr:hover td {
       type="text"
       id="busca" 
       class="search-input"
-      placeholder="Buscar por descrição, processo, contrato ou departamento..."
+      placeholder="Buscar por DEPARTAMENTO (ex: GETEC, GABINETE, etc)..."
     >
 
     <select id="statusSelect" class="status-select">
@@ -432,22 +518,50 @@ tr:hover td {
       <h4>Tempo sem Movimentação</h4>
       <canvas id="chartAging"></canvas>
     </div>
+
+    <div class="chart-box">
+      <h4>Valores por Departamento</h4>
+      <canvas id="chartValorDept"></canvas>
+    </div>
   </div>
 
-  <!-- TABLE -->
+  <!-- TABELA PRINCIPAL -->
+  <h3 class="section-title">Dados Individuais</h3>
+  <p class="section-subtitle">
+    Todas as colunas da planilha são exibidas abaixo
+    Use a rolagem horizontal para navegar pelas colunas.
+  </p>
+
+  <div class="table-tools">
+    <button class="btn-secondary" onclick="alternarTelaCheiaTabela()" id="btnTelaCheia">
+      Ampliar tabela
+    </button>
+  </div>
+
+  <div class="table-wrapper principal" id="wrapperTabelaPrincipal">
+    <table class="dados-table">
+      <thead id="theadTabela"></thead>
+      <tbody id="tb"></tbody>
+    </table>
+  </div>
+
+  <!-- RESUMO POR DEPARTAMENTO NO FINAL -->
+  <h3 class="section-title">Soma dos Valores por Departamento</h3>
+  <p class="section-subtitle">
+    Resumo consolidado com quantidade de processos, valor total e valor médio por departamento.
+  </p>
+
   <div class="table-wrapper">
     <table>
       <thead>
         <tr>
-          <th>Número do Processo SEI</th>
-          <th>Número do Contrato</th>
-          <th>Departamento Responsável</th>
-          <th>Status</th>
-          <th>Dias Parado</th>
-          <th>Descrição</th>
+          <th>Departamento</th>
+          <th>Quantidade de Processos</th>
+          <th class="valor-monetario">Valor Total</th>
+          <th class="valor-monetario">Valor Médio</th>
         </tr>
       </thead>
-      <tbody id="tb"></tbody>
+      <tbody id="tbResumoDept"></tbody>
     </table>
   </div>
 
@@ -456,28 +570,9 @@ tr:hover td {
 <script>
 function seguro(v, padrao = "Não informado") {
   if (v === undefined || v === null) return padrao;
-
+  if (v instanceof Date) return formatarData(v);
   const texto = String(v).trim();
-
   return texto !== "" ? texto : padrao;
-}
-
-/*
-  Função para localizar o número do contrato mesmo que o nome
-  da coluna na planilha esteja escrito de formas diferentes.
-*/
-function obterCampo(obj, nomes, padrao = "") {
-  for (const nome of nomes) {
-    if (
-      obj[nome] !== undefined &&
-      obj[nome] !== null &&
-      String(obj[nome]).trim() !== ""
-    ) {
-      return obj[nome];
-    }
-  }
-
-  return padrao;
 }
 
 function normalizar(v) {
@@ -489,9 +584,19 @@ function normalizar(v) {
 
 let dados = [];
 let filtrado = [];
-let c1 = null;
-let c2 = null;
-let c3 = null;
+let colunasPlanilha = [];
+let colunasTabela = [];
+
+// Mapeamento das colunas originais para as colunas desejadas
+let colunaProcesso = "", colunaContrato = "", colunaDepartamento = "", colunaStatus = "";
+let colunaDias = "", colunaDescricao = "", colunaValor = "";
+let colunaDataInicioSEI = "", colunaTipoLic = "", colunaUnidadeAtual = "";
+let colunaUltimoAndamento = "", colunaDataUltimoAndamento = "", colunaDataAssinatura = "";
+let colunaTotalDiasAssinatura = "", colunaGarantia = "", colunaNumAditivo = "";
+let colunaVencAditivo = "", colunaApostilamento = "", colunaDataApostilamento = "";
+let colunaVencContrato = "", colunaDiasVencer = "", colunaDiasAditivoVencer = "";
+
+let c1 = null, c2 = null, c3 = null, c4 = null;
 
 const el = {
   mensagem: document.getElementById("mensagem"),
@@ -500,78 +605,73 @@ const el = {
   statusSelect: document.getElementById("statusSelect"),
   infoRegistros: document.getElementById("infoRegistros"),
   tb: document.getElementById("tb"),
+  tbResumoDept: document.getElementById("tbResumoDept"),
+  theadTabela: document.getElementById("theadTabela"),
   total: document.getElementById("total"),
   concluido: document.getElementById("concluido"),
   andamento: document.getElementById("andamento"),
   cancelado: document.getElementById("cancelado"),
-  media: document.getElementById("media")
+  media: document.getElementById("media"),
+  valorTotal: document.getElementById("valorTotal"),
+  wrapperTabelaPrincipal: document.getElementById("wrapperTabelaPrincipal"),
+  btnTelaCheia: document.getElementById("btnTelaCheia")
 };
 
 async function carregar() {
   try {
-    const res = await fetch("datagrid.xlsx", {
-      cache: "no-store"
-    });
-
-    if (!res.ok) {
-      throw new Error("Arquivo datagrid.xlsx não encontrado.");
-    }
-
+    const res = await fetch("datagrid.xlsx", { cache: "no-store" });
+    if (!res.ok) throw new Error("Arquivo datagrid.xlsx não encontrado.");
     const dataCabecalho = res.headers.get("Last-Modified");
-
     const buffer = await res.arrayBuffer();
-
-    const wb = XLSX.read(buffer, {
-      type: "array",
-      cellDates: true
-    });
-
+    const wb = XLSX.read(buffer, { type: "array", cellDates: true });
     atualizarDataPlanilha(wb, dataCabecalho);
-
     const primeiraAba = wb.SheetNames[0];
-
-    let json = XLSX.utils.sheet_to_json(wb.Sheets[primeiraAba], {
-      defval: ""
-    });
-
+    let json = XLSX.utils.sheet_to_json(wb.Sheets[primeiraAba], { defval: "" });
     json = removerLinhasVazias(json);
-
+    colunasPlanilha = obterTodasColunas(json);
+    detectarColunas();
+    montarOrdemColunasTabela();
+    
     dados = json.map(x => {
-      const status = seguro(x["Status"]);
-
+      const status = seguro(obterValorColunaOriginal(x, colunaStatus));
+      const departamento = seguro(obterValorColunaOriginal(x, colunaDepartamento));
+      const dias = converterNumero(obterValorColunaOriginal(x, colunaDias));
+      const valor = converterValor(obterValorColunaOriginal(x, colunaValor));
+      const contrato = seguro(obterCampo(x, [colunaContrato, "Número do Contrato", "Numero do Contrato", "Nº Contrato", "N° Contrato", "Contrato"], ""));
+      
       return {
-        proc: seguro(x["Processo SEI"]),
-
-        contrato: seguro(
-          obterCampo(x, [
-            "Número do Contrato",
-            "Numero do Contrato",
-            "Nº Contrato",
-            "N° Contrato",
-            "N Contrato",
-            "Contrato",
-            "Número Contrato",
-            "Numero Contrato",
-            "Contrato SEI",
-            "Nº do Contrato",
-            "N° do Contrato"
-          ], "")
-        ),
-
-        dep: seguro(x["Departamento"]),
+        original: x,
+        proc: seguro(obterValorColunaOriginal(x, colunaProcesso)),
+        contrato: contrato,
+        dep: departamento,
         status: status,
-        dias: converterNumero(x["Dias Parado"]),
-        desc: seguro(x["Descrição Objeto"], "Sem descrição")
+        dias: dias,
+        desc: seguro(obterValorColunaOriginal(x, colunaDescricao), "Sem descrição"),
+        valor: valor,
+        // Mapear todas as colunas extras
+        dataInicioSEI: obterValorColunaOriginal(x, colunaDataInicioSEI),
+        tipoLic: obterValorColunaOriginal(x, colunaTipoLic),
+        unidadeAtual: obterValorColunaOriginal(x, colunaUnidadeAtual),
+        ultimoAndamento: obterValorColunaOriginal(x, colunaUltimoAndamento),
+        dataUltimoAndamento: obterValorColunaOriginal(x, colunaDataUltimoAndamento),
+        dataAssinatura: obterValorColunaOriginal(x, colunaDataAssinatura),
+        totalDiasAssinatura: obterValorColunaOriginal(x, colunaTotalDiasAssinatura),
+        garantia: obterValorColunaOriginal(x, colunaGarantia),
+        numAditivo: obterValorColunaOriginal(x, colunaNumAditivo),
+        vencAditivo: obterValorColunaOriginal(x, colunaVencAditivo),
+        apostilamento: obterValorColunaOriginal(x, colunaApostilamento),
+        dataApostilamento: obterValorColunaOriginal(x, colunaDataApostilamento),
+        vencContrato: obterValorColunaOriginal(x, colunaVencContrato),
+        diasVencer: obterValorColunaOriginal(x, colunaDiasVencer),
+        diasAditivoVencer: obterValorColunaOriginal(x, colunaDiasAditivoVencer)
       };
     });
-
+    
     filtrado = [...dados];
-
+    montarCabecalhoTabela();
     montarDropdown();
     update();
-
     el.mensagem.style.display = "none";
-
   } catch (erro) {
     console.error(erro);
     el.mensagem.className = "erro";
@@ -581,9 +681,107 @@ async function carregar() {
 }
 
 function removerLinhasVazias(lista) {
-  return lista.filter(item => {
-    return Object.values(item).some(valor => String(valor).trim() !== "");
+  return lista.filter(item => Object.values(item).some(valor => String(valor).trim() !== ""));
+}
+
+function obterTodasColunas(lista) {
+  const colunas = [];
+  lista.forEach(item => {
+    Object.keys(item).forEach(coluna => {
+      if (!colunas.includes(coluna)) colunas.push(coluna);
+    });
   });
+  return colunas;
+}
+
+function localizarColuna(possiveisNomes) {
+  const possiveisNormalizados = possiveisNomes.map(normalizar);
+  let encontrada = colunasPlanilha.find(coluna => possiveisNormalizados.includes(normalizar(coluna)));
+  if (encontrada) return encontrada;
+  encontrada = colunasPlanilha.find(coluna => {
+    const colunaNormalizada = normalizar(coluna);
+    return possiveisNormalizados.some(nome => colunaNormalizada.includes(nome));
+  });
+  return encontrada || "";
+}
+
+function detectarColunas() {
+  colunaProcesso = localizarColuna(["Processo SEI", "Número do Processo SEI", "Numero do Processo SEI", "Processo"]);
+  colunaContrato = localizarColuna(["Número do Contrato", "Numero do Contrato", "Nº Contrato", "Contrato"]);
+  colunaDepartamento = localizarColuna(["Departamento", "Departamento Responsável", "Setor", "Unidade"]);
+  colunaStatus = localizarColuna(["Status", "Situação", "Andamento"]);
+  colunaDias = localizarColuna(["Dias Parado", "Dias", "Tempo sem Movimentação"]);
+  colunaDescricao = localizarColuna(["Descrição Objeto", "Descrição", "Objeto"]);
+  colunaValor = localizarColuna(["Valor Total", "Valor", "Valor do Contrato", "Valor Estimado"]);
+  colunaDataInicioSEI = localizarColuna(["Data Início SEI", "Data Inicio SEI", "Data Início"]);
+  colunaTipoLic = localizarColuna(["Tipo Licitação", "Tipo de Licitação", "Modalidade"]);
+  colunaUnidadeAtual = localizarColuna(["Unidade Atual SEI", "Unidade Atual", "Localização"]);
+  colunaUltimoAndamento = localizarColuna(["Último Andamento SEI", "Ultimo Andamento"]);
+  colunaDataUltimoAndamento = localizarColuna(["Data Último Andamento", "Data Ultimo Andamento"]);
+  colunaDataAssinatura = localizarColuna(["Data Assinatura Contrato", "Data Assinatura"]);
+  colunaTotalDiasAssinatura = localizarColuna(["Total de Dias até Assinatura do Contrato", "Dias até Assinatura"]);
+  colunaGarantia = localizarColuna(["Garantia"]);
+  colunaNumAditivo = localizarColuna(["N° Aditivo", "Numero Aditivo", "Aditivo"]);
+  colunaVencAditivo = localizarColuna(["Vencim. Aditivo", "Vencimento Aditivo"]);
+  colunaApostilamento = localizarColuna(["Apostilamento"]);
+  colunaDataApostilamento = localizarColuna(["Data Apostilamento"]);
+  colunaVencContrato = localizarColuna(["Vencim. Contrato", "Vencimento Contrato"]);
+  colunaDiasVencer = localizarColuna(["Dias Contrato a Vencer"]);
+  colunaDiasAditivoVencer = localizarColuna(["Dias Aditivo a Vencer"]);
+}
+
+function montarOrdemColunasTabela() {
+  const ordemDesejada = [
+    "Departamento", "Processo SEI", "Data Início SEI", "Tipo Licitação", "Descrição Objeto",
+    "Unidade Atual SEI", "Último Andamento SEI", "Data Último Andamento", "Dias Parado", "Status",
+    "N° Contrato", "Data Assinatura Contrato", "Total de Dias até Assinatura do Contrato", "Garantia",
+    "N° Aditivo", "Vencim. Aditivo", "Apostilamento", "Data Apostilamento", "Vencim. Contrato",
+    "Dias Contrato a Vencer", "Dias Aditivo a Vencer", "Valor Total"
+  ];
+  
+  const mapeamento = {
+    "Departamento": colunaDepartamento,
+    "Processo SEI": colunaProcesso,
+    "Data Início SEI": colunaDataInicioSEI,
+    "Tipo Licitação": colunaTipoLic,
+    "Descrição Objeto": colunaDescricao,
+    "Unidade Atual SEI": colunaUnidadeAtual,
+    "Último Andamento SEI": colunaUltimoAndamento,
+    "Data Último Andamento": colunaDataUltimoAndamento,
+    "Dias Parado": colunaDias,
+    "Status": colunaStatus,
+    "N° Contrato": colunaContrato,
+    "Data Assinatura Contrato": colunaDataAssinatura,
+    "Total de Dias até Assinatura do Contrato": colunaTotalDiasAssinatura,
+    "Garantia": colunaGarantia,
+    "N° Aditivo": colunaNumAditivo,
+    "Vencim. Aditivo": colunaVencAditivo,
+    "Apostilamento": colunaApostilamento,
+    "Data Apostilamento": colunaDataApostilamento,
+    "Vencim. Contrato": colunaVencContrato,
+    "Dias Contrato a Vencer": colunaDiasVencer,
+    "Dias Aditivo a Vencer": colunaDiasAditivoVencer,
+    "Valor Total": colunaValor
+  };
+  
+  colunasTabela = ordemDesejada.map(nome => ({
+    display: nome,
+    original: mapeamento[nome] || ""
+  }));
+}
+
+function obterCampo(obj, nomes, padrao = "") {
+  for (const nome of nomes) {
+    if (nome && obj[nome] !== undefined && obj[nome] !== null && String(obj[nome]).trim() !== "") {
+      return obj[nome];
+    }
+  }
+  return padrao;
+}
+
+function obterValorColunaOriginal(obj, coluna) {
+  if (!coluna) return "";
+  return obj[coluna] !== undefined && obj[coluna] !== null ? obj[coluna] : "";
 }
 
 function converterNumero(v) {
@@ -591,47 +789,43 @@ function converterNumero(v) {
   return Number.isFinite(n) ? n : 0;
 }
 
+function converterValor(v) {
+  if (v === undefined || v === null || v === "") return 0;
+  if (typeof v === "number" && Number.isFinite(v)) return v;
+  let texto = String(v).replace(/[R$\s]/g, "").replace(/[^\d,.-]/g, "").trim();
+  if (!texto) return 0;
+  const temVirgula = texto.includes(",");
+  const temPonto = texto.includes(".");
+  if (temVirgula && temPonto) {
+    if (texto.lastIndexOf(",") > texto.lastIndexOf(".")) texto = texto.replace(/\./g, "").replace(",", ".");
+    else texto = texto.replace(/,/g, "");
+  } else if (temVirgula) texto = texto.replace(/\./g, "").replace(",", ".");
+  const numero = Number(texto);
+  return Number.isFinite(numero) ? numero : 0;
+}
+
+function formatarMoeda(valor) {
+  return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
 function formatarData(data) {
-  if (!data || isNaN(data.getTime())) {
+  if (!data || !(data instanceof Date) || isNaN(data.getTime())) {
+    if (typeof data === "string" && data.trim()) return data;
     return "não disponível";
   }
-
-  return data.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric"
-  });
+  return data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
 function atualizarDataPlanilha(wb, dataCabecalho) {
   let dataAtualizacao = null;
-
-  /*
-    1ª tentativa:
-    Data interna salva nas propriedades do arquivo Excel.
-  */
-  if (wb && wb.Props && wb.Props.ModifiedDate) {
-    dataAtualizacao = new Date(wb.Props.ModifiedDate);
-  }
-
-  /*
-    2ª tentativa:
-    Data de modificação informada pelo servidor.
-  */
-  if ((!dataAtualizacao || isNaN(dataAtualizacao.getTime())) && dataCabecalho) {
-    dataAtualizacao = new Date(dataCabecalho);
-  }
-
+  if (wb && wb.Props && wb.Props.ModifiedDate) dataAtualizacao = new Date(wb.Props.ModifiedDate);
+  if ((!dataAtualizacao || isNaN(dataAtualizacao.getTime())) && dataCabecalho) dataAtualizacao = new Date(dataCabecalho);
   el.dataAtualizacao.innerText = `Dados atualizados em: ${formatarData(dataAtualizacao)}`;
 }
 
 function montarDropdown() {
   el.statusSelect.innerHTML = '<option value="">Todos os Status</option>';
-
-  const statusUnicos = [...new Set(dados.map(x => x.status))]
-    .filter(Boolean)
-    .sort((a, b) => a.localeCompare(b, "pt-BR"));
-
+  const statusUnicos = [...new Set(dados.map(x => x.status))].filter(Boolean).sort((a, b) => a.localeCompare(b, "pt-BR"));
   statusUnicos.forEach(status => {
     const op = document.createElement("option");
     op.value = status;
@@ -643,141 +837,153 @@ function montarDropdown() {
 function aplicar() {
   const textoBusca = normalizar(el.busca.value);
   const statusSelecionado = el.statusSelect.value;
-
+  
   filtrado = dados.filter(x => {
-    const buscaGeral = [
-      x.proc,
-      x.contrato,
-      x.dep,
-      x.status,
-      x.desc
-    ].map(normalizar).join(" ");
-
-    const passaBusca = !textoBusca || buscaGeral.includes(textoBusca);
+    // Busca apenas na coluna de departamento
+    const departamentoNormalizado = normalizar(x.dep);
+    const passaBusca = !textoBusca || departamentoNormalizado.includes(textoBusca);
     const passaStatus = !statusSelecionado || x.status === statusSelecionado;
-
     return passaBusca && passaStatus;
   });
-
+  
   update();
 }
 
 function kpi(lista) {
   const total = lista.length;
-
-  const concluidos = lista.filter(x => {
-    const s = normalizar(x.status);
-    return s.includes("concluido");
-  }).length;
-
-  const cancelados = lista.filter(x => {
-    const s = normalizar(x.status);
-    return s.includes("cancelado");
-  }).length;
-
-  const andamento = lista.filter(x => {
-    const s = normalizar(x.status);
-    return s.includes("andamento");
-  }).length;
-
-  const media = total
-    ? lista.reduce((acc, item) => acc + item.dias, 0) / total
-    : 0;
-
+  const concluidos = lista.filter(x => normalizar(x.status).includes("concluido")).length;
+  const cancelados = lista.filter(x => normalizar(x.status).includes("cancelado")).length;
+  const andamento = lista.filter(x => normalizar(x.status).includes("andamento") || normalizar(x.status).includes("contratos em andamento")).length;
+  const media = total ? lista.reduce((acc, item) => acc + item.dias, 0) / total : 0;
+  const valorTotal = lista.reduce((acc, item) => acc + item.valor, 0);
   el.total.innerText = total;
   el.concluido.innerText = concluidos;
   el.cancelado.innerText = cancelados;
   el.andamento.innerText = andamento;
   el.media.innerText = `${Math.round(media)} dias`;
-
+  el.valorTotal.innerText = formatarMoeda(valorTotal);
   el.infoRegistros.innerText = `${total} registro${total === 1 ? "" : "s"} encontrado${total === 1 ? "" : "s"}`;
 }
 
 function classeBadge(status) {
   const s = normalizar(status);
-
   if (s.includes("concluido")) return "concluido";
+  if (s.includes("contratos em andamento") || (s.includes("andamento") && !s.includes("concluido"))) return "contratos-em-andamento";
   if (s.includes("cancelado")) return "cancelado";
-  if (s.includes("andamento")) return "andamento";
-
+  if (s.includes("aquisicao")) return "aquisicao";
+  if (s.includes("renovacao")) return "em-renovacao";
   return "outro";
 }
 
-function deveMostrarContrato(status) {
-  const s = normalizar(status);
+function montarCabecalhoTabela() {
+  el.theadTabela.innerHTML = "";
+  const tr = document.createElement("tr");
+  colunasTabela.forEach(col => {
+    const th = document.createElement("th");
+    th.textContent = col.display;
+    tr.appendChild(th);
+  });
+  el.theadTabela.appendChild(tr);
+}
 
-  /*
-    Mostra o número do contrato somente quando o status indicar andamento.
-    Exemplos aceitos:
-    - Contratos Em Andamento
-    - Em Andamento
-    - Contrato em andamento
-  */
-  return s.includes("andamento");
+function obterValorTabela(item, colunaOriginal) {
+  if (!colunaOriginal) return "";
+  if (colunaOriginal === colunaContrato) {
+    if (normalizar(item.status).includes("andamento")) return item.contrato && item.contrato !== "Não informado" ? item.contrato : "Não informado";
+    return "-";
+  }
+  if (colunaOriginal === colunaValor) return item.valor;
+  return obterValorColunaOriginal(item.original, colunaOriginal);
+}
+
+function formatarCelulaTabela(item, colunaOriginal) {
+  const valor = obterValorTabela(item, colunaOriginal);
+  if (colunaOriginal === colunaValor) return formatarMoeda(item.valor);
+  if (valor instanceof Date) return formatarData(valor);
+  if (typeof valor === "number") return valor.toString();
+  return seguro(valor, "");
 }
 
 function tabela(lista) {
   el.tb.innerHTML = "";
-
   if (!lista.length) {
     const tr = document.createElement("tr");
     const td = document.createElement("td");
-
-    td.colSpan = 6;
+    td.colSpan = colunasTabela.length || 1;
     td.textContent = "Nenhum registro encontrado.";
     td.style.textAlign = "center";
     td.style.padding = "18px";
     td.style.color = "var(--muted)";
-
     tr.appendChild(td);
     el.tb.appendChild(tr);
     return;
   }
-
   const fragmento = document.createDocumentFragment();
-
-  lista.forEach(x => {
+  lista.forEach(item => {
     const tr = document.createElement("tr");
-
-    const tdProc = document.createElement("td");
-    tdProc.textContent = x.proc;
-
-    const tdContrato = document.createElement("td");
-
-    if (deveMostrarContrato(x.status)) {
-      tdContrato.textContent = x.contrato && x.contrato !== "Não informado"
-        ? x.contrato
-        : "Não informado";
-    } else {
-      tdContrato.textContent = "-";
-    }
-
-    const tdDep = document.createElement("td");
-    tdDep.textContent = x.dep;
-
-    const tdStatus = document.createElement("td");
-    const badge = document.createElement("span");
-    badge.className = `badge ${classeBadge(x.status)}`;
-    badge.textContent = x.status;
-    tdStatus.appendChild(badge);
-
-    const tdDias = document.createElement("td");
-    tdDias.textContent = x.dias;
-
-    const tdDesc = document.createElement("td");
-    tdDesc.textContent = x.desc;
-
-    tr.appendChild(tdProc);
-    tr.appendChild(tdContrato);
-    tr.appendChild(tdDep);
-    tr.appendChild(tdStatus);
-    tr.appendChild(tdDias);
-    tr.appendChild(tdDesc);
-
+    colunasTabela.forEach(col => {
+      const td = document.createElement("td");
+      if (col.display === "Status") {
+        const badge = document.createElement("span");
+        badge.className = `badge ${classeBadge(item.status)}`;
+        badge.textContent = item.status;
+        td.appendChild(badge);
+      } else {
+        td.textContent = formatarCelulaTabela(item, col.original);
+      }
+      tr.appendChild(td);
+    });
     fragmento.appendChild(tr);
   });
-
   el.tb.appendChild(fragmento);
+}
+
+function gerarResumoPorDepartamento(lista) {
+  const resumo = {};
+  lista.forEach(item => {
+    const departamento = item.dep || "Não informado";
+    if (!resumo[departamento]) resumo[departamento] = { departamento, quantidade: 0, valorTotal: 0 };
+    resumo[departamento].quantidade += 1;
+    resumo[departamento].valorTotal += item.valor;
+  });
+  return Object.values(resumo).map(item => ({ ...item, valorMedio: item.quantidade ? item.valorTotal / item.quantidade : 0 })).sort((a, b) => b.valorTotal - a.valorTotal);
+}
+
+function tabelaResumoDepartamento(lista) {
+  el.tbResumoDept.innerHTML = "";
+  const resumo = gerarResumoPorDepartamento(lista);
+  if (!resumo.length) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 4;
+    td.textContent = "Nenhum dado para resumir.";
+    td.style.textAlign = "center";
+    td.style.padding = "18px";
+    td.style.color = "var(--muted)";
+    tr.appendChild(td);
+    el.tbResumoDept.appendChild(tr);
+    return;
+  }
+  const fragmento = document.createDocumentFragment();
+  resumo.forEach(item => {
+    const tr = document.createElement("tr");
+    const tdDep = document.createElement("td");
+    tdDep.textContent = item.departamento;
+    const tdQtd = document.createElement("td");
+    tdQtd.textContent = item.quantidade;
+    const tdValor = document.createElement("td");
+    tdValor.textContent = formatarMoeda(item.valorTotal);
+    tdValor.classList.add("valor-monetario");
+    const tdMedio = document.createElement("td");
+    tdMedio.textContent = formatarMoeda(item.valorMedio);
+    tdMedio.classList.add("valor-monetario");
+    tr.appendChild(tdDep);
+    tr.appendChild(tdQtd);
+    tr.appendChild(tdValor);
+    tr.appendChild(tdMedio);
+    fragmento.appendChild(tr);
+  });
+  el.tbResumoDept.appendChild(fragmento);
 }
 
 function contarPorCampo(lista, campo) {
@@ -792,22 +998,32 @@ function destruirGraficos() {
   if (c1) c1.destroy();
   if (c2) c2.destroy();
   if (c3) c3.destroy();
+  if (c4) c4.destroy();
+  c1 = c2 = c3 = c4 = null;
+}
 
-  c1 = null;
-  c2 = null;
-  c3 = null;
+// Função auxiliar para obter a cor do status baseado no nome
+function getCorPorStatus(nomeStatus) {
+  const s = normalizar(nomeStatus);
+  if (s.includes("concluido")) return "#22c55e";      // Verde
+  if (s.includes("contratos em andamento") || (s.includes("andamento") && !s.includes("concluido"))) return "#3b82f6"; // Azul
+  if (s.includes("cancelado")) return "#ef4444";     // Vermelho
+  if (s.includes("aquisicao")) return "#8b5cf6";     // Roxo
+  if (s.includes("renovacao")) return "#f97316";     // Laranja
+  return "#94a3b8"; // Cinza para outros
 }
 
 function charts(lista) {
   destruirGraficos();
-
   const corTexto = getComputedStyle(document.body).getPropertyValue("--text").trim();
   const corGrid = getComputedStyle(document.body).getPropertyValue("--border").trim();
-
+  
+  // Gráfico de Status dos Processos com cores específicas
   const statusMap = contarPorCampo(lista, "status");
   const statusLabels = Object.keys(statusMap);
   const statusValores = Object.values(statusMap);
-
+  const statusCores = statusLabels.map(label => getCorPorStatus(label));
+  
   c1 = new Chart(document.getElementById("chartStatus"), {
     type: "bar",
     data: {
@@ -815,7 +1031,9 @@ function charts(lista) {
       datasets: [{
         label: "Processos",
         data: statusValores,
-        backgroundColor: gerarCores(statusLabels.length)
+        backgroundColor: statusCores,
+        borderColor: statusCores.map(c => c.replace('0.12', '0.5')),
+        borderWidth: 1
       }]
     },
     options: {
@@ -823,136 +1041,91 @@ function charts(lista) {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          display: false
-        }
+        legend: { display: false },
+        tooltip: { callbacks: { label: function(context) { return `${context.raw} processos`; } } }
       },
       scales: {
-        x: {
-          ticks: { color: corTexto, precision: 0 },
-          grid: { color: corGrid }
-        },
-        y: {
-          ticks: { color: corTexto },
-          grid: { display: false }
-        }
+        x: { ticks: { color: corTexto, precision: 0 }, grid: { color: corGrid } },
+        y: { ticks: { color: corTexto }, grid: { display: false } }
       },
       onClick: function(event, elements) {
-        if (!elements.length) return;
-
-        const index = elements[0].index;
-        const status = statusLabels[index];
-
-        el.statusSelect.value = status;
-        aplicar();
+        if (elements.length) {
+          const index = elements[0].index;
+          el.statusSelect.value = statusLabels[index];
+          aplicar();
+        }
       }
     }
   });
-
+  
   const depMap = contarPorCampo(lista, "dep");
-  const depOrdenado = Object.entries(depMap)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 12);
-
+  const depOrdenado = Object.entries(depMap).sort((a, b) => b[1] - a[1]).slice(0, 12);
   c2 = new Chart(document.getElementById("chartDept"), {
     type: "bar",
     data: {
       labels: depOrdenado.map(x => x[0]),
-      datasets: [{
-        label: "Processos",
-        data: depOrdenado.map(x => x[1]),
-        backgroundColor: "#3b82f6"
-      }]
+      datasets: [{ label: "Processos", data: depOrdenado.map(x => x[1]), backgroundColor: "#3b82f6" }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          callbacks: {
-            title: itens => itens[0].label
-          }
-        }
-      },
+      plugins: { legend: { display: false } },
       scales: {
-        x: {
-          ticks: {
-            color: corTexto,
-            maxRotation: 60,
-            minRotation: 30
-          },
-          grid: { display: false }
-        },
-        y: {
-          ticks: { color: corTexto, precision: 0 },
-          grid: { color: corGrid }
-        }
+        x: { ticks: { color: corTexto, maxRotation: 60, minRotation: 30 }, grid: { display: false } },
+        y: { ticks: { color: corTexto, precision: 0 }, grid: { color: corGrid } }
       }
     }
   });
-
-  const aging = [
-    lista.filter(x => x.dias < 30).length,
-    lista.filter(x => x.dias >= 30 && x.dias < 90).length,
-    lista.filter(x => x.dias >= 90 && x.dias < 180).length,
-    lista.filter(x => x.dias >= 180).length
-  ];
-
+  
+  const aging = [lista.filter(x => x.dias < 30).length, lista.filter(x => x.dias >= 30 && x.dias < 90).length, lista.filter(x => x.dias >= 90 && x.dias < 180).length, lista.filter(x => x.dias >= 180).length];
   c3 = new Chart(document.getElementById("chartAging"), {
     type: "bar",
     data: {
       labels: ["0-30 dias", "30-90 dias", "90-180 dias", "180+ dias"],
-      datasets: [{
-        label: "Processos",
-        data: aging,
-        backgroundColor: ["#22c55e", "#f59e0b", "#ef4444", "#7c3aed"]
-      }]
+      datasets: [{ label: "Processos", data: aging, backgroundColor: ["#22c55e", "#f59e0b", "#ef4444", "#7c3aed"] }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: corTexto }, grid: { display: false } },
+        y: { ticks: { color: corTexto, precision: 0 }, grid: { color: corGrid } }
+      }
+    }
+  });
+  
+  const resumoValores = gerarResumoPorDepartamento(lista).slice(0, 12);
+  c4 = new Chart(document.getElementById("chartValorDept"), {
+    type: "bar",
+    data: {
+      labels: resumoValores.map(x => x.departamento),
+      datasets: [{ label: "Valor Total", data: resumoValores.map(x => x.valorTotal), backgroundColor: "#16a34a" }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          display: false
-        }
+        legend: { display: false },
+        tooltip: { callbacks: { label: function(context) { return formatarMoeda(context.raw || 0); } } }
       },
       scales: {
-        x: {
-          ticks: { color: corTexto },
-          grid: { display: false }
-        },
-        y: {
-          ticks: { color: corTexto, precision: 0 },
-          grid: { color: corGrid }
-        }
+        x: { ticks: { color: corTexto, maxRotation: 60, minRotation: 30 }, grid: { display: false } },
+        y: { ticks: { color: corTexto, callback: function(value) { return formatarMoeda(value); } }, grid: { color: corGrid } }
       }
     }
   });
 }
 
 function gerarCores(qtd) {
-  const cores = [
-    "#22c55e",
-    "#f59e0b",
-    "#ef4444",
-    "#3b82f6",
-    "#8b5cf6",
-    "#06b6d4",
-    "#ec4899",
-    "#84cc16",
-    "#f97316",
-    "#14b8a6"
-  ];
-
+  const cores = ["#22c55e", "#f59e0b", "#ef4444", "#3b82f6", "#8b5cf6", "#06b6d4", "#ec4899", "#84cc16", "#f97316", "#14b8a6"];
   return Array.from({ length: qtd }, (_, i) => cores[i % cores.length]);
 }
 
 function update() {
   kpi(filtrado);
   tabela(filtrado);
+  tabelaResumoDepartamento(filtrado);
   charts(filtrado);
 }
 
@@ -964,44 +1137,72 @@ function limpar() {
 }
 
 function exportar() {
-  if (!filtrado.length) {
-    alert("Não há dados para exportar.");
-    return;
-  }
-
-  const dadosExportacao = filtrado.map(x => ({
-    "Número do Processo SEI": x.proc,
-    "Número do Contrato": deveMostrarContrato(x.status)
-      ? x.contrato
-      : "",
-    "Departamento Responsável": x.dep,
-    "Status": x.status,
-    "Dias Parado": x.dias,
-    "Descrição": x.desc
-  }));
-
+  if (!filtrado.length) { alert("Não há dados para exportar."); return; }
+  const dadosExportacao = filtrado.map(item => {
+    const linha = {};
+    colunasTabela.forEach(col => {
+      let valor = obterValorTabela(item, col.original);
+      if (col.original === colunaValor) valor = item.valor;
+      linha[col.display] = valor;
+    });
+    return linha;
+  });
   const ws = XLSX.utils.json_to_sheet(dadosExportacao);
   const wb = XLSX.utils.book_new();
-
   XLSX.utils.book_append_sheet(wb, ws, "dados_filtrados");
   XLSX.writeFile(wb, "dados_filtrados.xlsx");
 }
 
 function toggleTheme() {
   document.body.classList.toggle("light");
-
-  /*
-    Recria os gráficos para atualizar cores de texto/grid
-    de acordo com o tema selecionado.
-  */
   charts(filtrado);
+}
+
+function alternarTelaCheiaTabela() {
+  const novaJanela = window.open('', '_blank');
+  const htmlContent = document.getElementById('wrapperTabelaPrincipal').innerHTML;
+  novaJanela.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Tabela Ampliada - Processos SUTIS/SES-GO</title>
+      <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; margin: 0; background: #f8fafc; }
+        .container { max-width: 100%; overflow-x: auto; }
+        button { padding: 10px 15px; cursor: pointer; margin-bottom: 15px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; }
+        button:hover { background: #1d4ed8; }
+        table { border-collapse: collapse; width: 100%; min-width: 1200px; }
+        th, td { border: 1px solid #cbd5e1; padding: 8px 10px; font-size: 12px; text-align: left; vertical-align: top; }
+        th { background: #e2e8f0; position: sticky; top: 0; font-weight: 600; }
+        tr:nth-child(even) { background: #f1f5f9; }
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+        .badge.concluido { background: rgba(34,197,94,0.12); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+        .badge.contratos-em-andamento { background: rgba(59,130,246,0.12); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3); }
+        .badge.cancelado { background: rgba(239,68,68,0.12); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+        .badge.aquisicao { background: rgba(139,92,246,0.12); color: #8b5cf6; border: 1px solid rgba(139,92,246,0.3); }
+        .badge.em-renovacao { background: rgba(249,115,22,0.12); color: #f97316; border: 1px solid rgba(249,115,22,0.3); }
+        .badge.outro { background: rgba(148,163,184,0.16); color: #475569; border: 1px solid rgba(148,163,184,0.2); }
+        .valor-monetario { text-align: right; white-space: nowrap; }
+      </style>
+    </head>
+    <body>
+      <button onclick="window.close()">Fechar / Sair</button>
+      <div class="container">
+        ${htmlContent}
+      </div>
+    </body>
+    </html>
+  `);
+  novaJanela.document.close();
 }
 
 el.busca.addEventListener("input", aplicar);
 el.statusSelect.addEventListener("change", aplicar);
-
 carregar();
 </script>
-
+<p class="section-subtitle"  style="text-align: center;">
+    Desenvolvido por Mauro Cardoso SUTIS SES/GO ©
+  </p>
 </body>
 </html>
