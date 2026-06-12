@@ -25,6 +25,7 @@
   --blue: #3b82f6;
   --orange: #f97316;
   --purple: #8b5cf6;
+  --highlight: #fbbf24;
 }
 
 body.light {
@@ -127,6 +128,16 @@ button:active {
   background: #475569;
 }
 
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.btn-outline:hover {
+  background: var(--card-2);
+}
+
 /* KPI */
 .grid {
   display: grid;
@@ -186,8 +197,13 @@ button:active {
 
 .search-input {
   flex: 1;
-  min-width: 480px;
-  max-width: 1100px;
+  min-width: 300px;
+  max-width: 500px;
+}
+
+.search-local-input {
+  min-width: 300px;
+  max-width: 500px;
 }
 
 .status-select {
@@ -198,6 +214,19 @@ button:active {
   color: var(--muted);
   font-size: 13px;
   margin-left: auto;
+}
+
+/* Destaque de busca local */
+.highlight {
+  background-color: #fbbf24 !important;
+  color: #1e293b !important;
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+body.light .highlight {
+  background-color: #fef08a !important;
+  color: #000 !important;
 }
 
 /* CHARTS */
@@ -246,6 +275,39 @@ button:active {
   gap: 8px;
   flex-wrap: wrap;
   margin: 0 0 12px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.search-local-box {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: var(--card);
+  padding: 4px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.search-local-box input {
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  outline: none;
+  font-size: 13px;
+  width: 250px;
+}
+
+.search-local-box input::placeholder {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.search-local-box span {
+  color: var(--muted);
+  font-size: 12px;
+  padding: 0 5px;
 }
 
 /* TABLE */
@@ -420,13 +482,27 @@ tr:hover td {
   }
 
   .search-input,
-  .status-select {
+  .status-select,
+  .search-local-input {
     min-width: 100%;
     max-width: 100%;
   }
 
   .info-registros {
     margin-left: 0;
+  }
+
+  .table-tools {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-local-box {
+    width: 100%;
+  }
+
+  .search-local-box input {
+    flex: 1;
   }
 }
 </style>
@@ -492,7 +568,7 @@ tr:hover td {
       type="text"
       id="busca" 
       class="search-input"
-      placeholder="Buscar por DEPARTAMENTO (ex: GETEC, GABINETE, etc)..."
+      placeholder="Filtrar por DEPARTAMENTO (ex: GETEC, GABINETE)..."
     >
 
     <select id="statusSelect" class="status-select">
@@ -533,6 +609,19 @@ tr:hover td {
   </p>
 
   <div class="table-tools">
+    <div class="search-local-box">
+      <span>🔍</span>
+      <input 
+        type="text" 
+        id="buscaLocal" 
+        placeholder="Buscar local (Ctrl+F) em todas as colunas..."
+        autocomplete="off"
+      >
+      <span id="contadorBusca" style="min-width: 45px;">0/0</span>
+      <button class="btn-outline" onclick="proximoResultado()" style="padding: 4px 10px;">▼</button>
+      <button class="btn-outline" onclick="anteriorResultado()" style="padding: 4px 10px;">▲</button>
+      <button class="btn-outline" onclick="limparBuscaLocal()" style="padding: 4px 10px;">✕</button>
+    </div>
     <button class="btn-secondary" onclick="alternarTelaCheiaTabela()" id="btnTelaCheia">
       Ampliar tabela
     </button>
@@ -587,6 +676,11 @@ let filtrado = [];
 let colunasPlanilha = [];
 let colunasTabela = [];
 
+// Variáveis para busca local
+let termoBuscaLocal = "";
+let resultadosBusca = [];
+let indiceResultadoAtual = -1;
+
 // Mapeamento das colunas originais para as colunas desejadas
 let colunaProcesso = "", colunaContrato = "", colunaDepartamento = "", colunaStatus = "";
 let colunaDias = "", colunaDescricao = "", colunaValor = "";
@@ -614,7 +708,9 @@ const el = {
   media: document.getElementById("media"),
   valorTotal: document.getElementById("valorTotal"),
   wrapperTabelaPrincipal: document.getElementById("wrapperTabelaPrincipal"),
-  btnTelaCheia: document.getElementById("btnTelaCheia")
+  btnTelaCheia: document.getElementById("btnTelaCheia"),
+  buscaLocal: document.getElementById("buscaLocal"),
+  contadorBusca: document.getElementById("contadorBusca")
 };
 
 async function carregar() {
@@ -648,7 +744,6 @@ async function carregar() {
         dias: dias,
         desc: seguro(obterValorColunaOriginal(x, colunaDescricao), "Sem descrição"),
         valor: valor,
-        // Mapear todas as colunas extras
         dataInicioSEI: obterValorColunaOriginal(x, colunaDataInicioSEI),
         tipoLic: obterValorColunaOriginal(x, colunaTipoLic),
         unidadeAtual: obterValorColunaOriginal(x, colunaUnidadeAtual),
@@ -839,14 +934,125 @@ function aplicar() {
   const statusSelecionado = el.statusSelect.value;
   
   filtrado = dados.filter(x => {
-    // Busca apenas na coluna de departamento
     const departamentoNormalizado = normalizar(x.dep);
     const passaBusca = !textoBusca || departamentoNormalizado.includes(textoBusca);
     const passaStatus = !statusSelecionado || x.status === statusSelecionado;
     return passaBusca && passaStatus;
   });
   
+  // Limpa a busca local ao aplicar filtro de departamento/status
+  limparBuscaLocal();
+  
   update();
+}
+
+function obterTextoCompletoLinha(item) {
+  let textoCompleto = "";
+  colunasTabela.forEach(col => {
+    let valor = obterValorTabela(item, col.original);
+    if (col.original === colunaValor) valor = formatarMoeda(item.valor);
+    if (valor instanceof Date) valor = formatarData(valor);
+    if (valor !== undefined && valor !== null) {
+      textoCompleto += String(valor) + " ";
+    }
+  });
+  return textoCompleto;
+}
+
+function realizarBuscaLocal() {
+  termoBuscaLocal = el.buscaLocal.value.trim();
+  resultadosBusca = [];
+  indiceResultadoAtual = -1;
+  
+  if (!termoBuscaLocal) {
+    el.contadorBusca.innerText = "0/0";
+    removerDestaques();
+    return;
+  }
+  
+  const termoNormalizado = normalizar(termoBuscaLocal);
+  const linhas = document.querySelectorAll("#tb tr");
+  
+  linhas.forEach((linha, idxLinha) => {
+    const celulas = linha.querySelectorAll("td");
+    celulas.forEach((celula, idxCelula) => {
+      const textoOriginal = celula.textContent || "";
+      const textoNormalizado = normalizar(textoOriginal);
+      
+      if (textoNormalizado.includes(termoNormalizado)) {
+        resultadosBusca.push({
+          linha: idxLinha,
+          celula: idxCelula,
+          elemento: celula,
+          textoOriginal: textoOriginal
+        });
+      }
+    });
+  });
+  
+  el.contadorBusca.innerText = resultadosBusca.length > 0 ? `1/${resultadosBusca.length}` : "0/0";
+  
+  if (resultadosBusca.length > 0) {
+    indiceResultadoAtual = 0;
+    destacarResultadoAtual();
+  } else {
+    removerDestaques();
+  }
+}
+
+function removerDestaques() {
+  const todosDestaques = document.querySelectorAll(".highlight");
+  todosDestaques.forEach(el => {
+    const parent = el.parentNode;
+    if (parent) {
+      const textoOriginal = el.textContent;
+      const textNode = document.createTextNode(textoOriginal);
+      parent.replaceChild(textNode, el);
+      parent.normalize();
+    }
+  });
+}
+
+function destacarResultadoAtual() {
+  removerDestaques();
+  
+  if (resultadosBusca.length === 0 || indiceResultadoAtual < 0) return;
+  
+  const resultado = resultadosBusca[indiceResultadoAtual];
+  const celula = resultado.elemento;
+  const texto = resultado.textoOriginal;
+  const termo = termoBuscaLocal;
+  
+  if (!texto || !termo) return;
+  
+  const regex = new RegExp(`(${termo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  const novoHtml = texto.replace(regex, `<span class="highlight">$1</span>`);
+  celula.innerHTML = novoHtml;
+  
+  celula.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+  
+  el.contadorBusca.innerText = `${indiceResultadoAtual + 1}/${resultadosBusca.length}`;
+}
+
+function proximoResultado() {
+  if (resultadosBusca.length === 0) return;
+  indiceResultadoAtual = (indiceResultadoAtual + 1) % resultadosBusca.length;
+  destacarResultadoAtual();
+}
+
+function anteriorResultado() {
+  if (resultadosBusca.length === 0) return;
+  indiceResultadoAtual = (indiceResultadoAtual - 1 + resultadosBusca.length) % resultadosBusca.length;
+  destacarResultadoAtual();
+}
+
+function limparBuscaLocal() {
+  el.buscaLocal.value = "";
+  termoBuscaLocal = "";
+  resultadosBusca = [];
+  indiceResultadoAtual = -1;
+  el.contadorBusca.innerText = "0/0";
+  removerDestaques();
 }
 
 function kpi(lista) {
@@ -936,6 +1142,11 @@ function tabela(lista) {
     fragmento.appendChild(tr);
   });
   el.tb.appendChild(fragmento);
+  
+  // Após renderizar a tabela, reaplica a busca local se houver termo
+  if (termoBuscaLocal) {
+    realizarBuscaLocal();
+  }
 }
 
 function gerarResumoPorDepartamento(lista) {
@@ -1002,15 +1213,14 @@ function destruirGraficos() {
   c1 = c2 = c3 = c4 = null;
 }
 
-// Função auxiliar para obter a cor do status baseado no nome
 function getCorPorStatus(nomeStatus) {
   const s = normalizar(nomeStatus);
-  if (s.includes("concluido")) return "#22c55e";      // Verde
-  if (s.includes("contratos em andamento") || (s.includes("andamento") && !s.includes("concluido"))) return "#3b82f6"; // Azul
-  if (s.includes("cancelado")) return "#ef4444";     // Vermelho
-  if (s.includes("aquisicao")) return "#8b5cf6";     // Roxo
-  if (s.includes("renovacao")) return "#f97316";     // Laranja
-  return "#94a3b8"; // Cinza para outros
+  if (s.includes("concluido")) return "#22c55e";
+  if (s.includes("contratos em andamento") || (s.includes("andamento") && !s.includes("concluido"))) return "#3b82f6";
+  if (s.includes("cancelado")) return "#ef4444";
+  if (s.includes("aquisicao")) return "#8b5cf6";
+  if (s.includes("renovacao")) return "#f97316";
+  return "#94a3b8";
 }
 
 function charts(lista) {
@@ -1018,7 +1228,6 @@ function charts(lista) {
   const corTexto = getComputedStyle(document.body).getPropertyValue("--text").trim();
   const corGrid = getComputedStyle(document.body).getPropertyValue("--border").trim();
   
-  // Gráfico de Status dos Processos com cores específicas
   const statusMap = contarPorCampo(lista, "status");
   const statusLabels = Object.keys(statusMap);
   const statusValores = Object.values(statusMap);
@@ -1117,11 +1326,6 @@ function charts(lista) {
   });
 }
 
-function gerarCores(qtd) {
-  const cores = ["#22c55e", "#f59e0b", "#ef4444", "#3b82f6", "#8b5cf6", "#06b6d4", "#ec4899", "#84cc16", "#f97316", "#14b8a6"];
-  return Array.from({ length: qtd }, (_, i) => cores[i % cores.length]);
-}
-
 function update() {
   kpi(filtrado);
   tabela(filtrado);
@@ -1132,6 +1336,7 @@ function update() {
 function limpar() {
   el.busca.value = "";
   el.statusSelect.value = "";
+  limparBuscaLocal();
   filtrado = [...dados];
   update();
 }
@@ -1156,6 +1361,9 @@ function exportar() {
 function toggleTheme() {
   document.body.classList.toggle("light");
   charts(filtrado);
+  if (termoBuscaLocal) {
+    realizarBuscaLocal();
+  }
 }
 
 function alternarTelaCheiaTabela() {
@@ -1184,6 +1392,7 @@ function alternarTelaCheiaTabela() {
         .badge.em-renovacao { background: rgba(249,115,22,0.12); color: #f97316; border: 1px solid rgba(249,115,22,0.3); }
         .badge.outro { background: rgba(148,163,184,0.16); color: #475569; border: 1px solid rgba(148,163,184,0.2); }
         .valor-monetario { text-align: right; white-space: nowrap; }
+        .highlight { background-color: #fef08a; color: #000; border-radius: 2px; }
       </style>
     </head>
     <body>
@@ -1197,11 +1406,29 @@ function alternarTelaCheiaTabela() {
   novaJanela.document.close();
 }
 
+// Event listeners
 el.busca.addEventListener("input", aplicar);
 el.statusSelect.addEventListener("change", aplicar);
+el.buscaLocal.addEventListener("input", realizarBuscaLocal);
+el.buscaLocal.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    proximoResultado();
+  }
+});
+
+// Ctrl+F para focar na busca local
+document.addEventListener("keydown", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === "f") {
+    e.preventDefault();
+    el.buscaLocal.focus();
+    el.buscaLocal.select();
+  }
+});
+
 carregar();
 </script>
-<p class="section-subtitle"  style="text-align: center;">
+<p class="section-subtitle" style="text-align: center;">
     Desenvolvido por Mauro Cardoso SUTIS SES/GO ©
   </p>
 </body>
